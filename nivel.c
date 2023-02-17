@@ -53,22 +53,23 @@ void show_txt(ALLEGRO_FONT *font, char *file_name)
     if (txt_file == NULL)
         fprintf(stderr, "nao foi possivel abrir %s", file_name);
 
-    //al_clear_to_color(al_map_rgb(0, 0, 0));
+    al_clear_to_color(al_map_rgb(173, 216, 230));
     while (!feof(txt_file))
     {
         fgets(str, 1024, txt_file);
-        al_draw_text(font, al_map_rgb(255, 255, 255), 100, i + 100, 0, str);
+        al_draw_text(font, al_map_rgb(0, 0, 0), 100, i + 100, 0, str);
         i += 45;
     }
-    al_draw_text(font, al_map_rgb(255, 255, 255), 100, i + 100, 0, "Aperte ENTER para continuar!");
+    al_draw_text(font, al_map_rgb(0, 0, 0), 100, i + 100, 0, "Aperte ENTER para continuar!");
     fclose(txt_file);
 }
 
-void gerar_tab(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars, t_jogo *jogo) {
-       
+t_peca **gerar_tab(t_jogo *jogo) {
+    t_peca **tabuleiro = (t_peca**) malloc(8 * sizeof(t_peca*));  
     // seed the random number generator
     srand(time(NULL));
     for (int i = 0; i < 8; i++) {
+        tabuleiro[i] = (t_peca*) malloc(8 * sizeof(t_peca));
         for (int j = 0; j < 8; j++) {
             // assign a random type to the piece
             if(jogo->nivel == 1)
@@ -85,21 +86,29 @@ void gerar_tab(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars, t_jogo *jog
             }
         }
     }
+    return tabuleiro;
 }
 
-void desenharTabuleiro(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars, t_jogo *jogo) {
+// libera a memória alocada para um tabuleiro 8x8 do tipo t_peca **
+void liberar_tabuleiro(t_peca **tabuleiro) {
+    for (int i = 0; i < 8; i++) {
+        free(tabuleiro[i]);
+    }
+    free(tabuleiro);
+}
 
-    desenhar_background(allegro_vars, jogo);
+void desenharTabuleiro(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jogo *jogo) {
+
     if (jogo->leadboard)
         show_txt(allegro_vars->font, "records.txt");
     else if(jogo->instrucoes)
         show_txt(allegro_vars->font, "instrucoes.txt");
     else if(jogo->novoNivel){
-
         show_txt(allegro_vars->font, "nivel.txt");
-        gerar_tab(tabuleiro, allegro_vars, jogo);
+        tabuleiro = gerar_tab(jogo);
     }
     else{
+    desenhar_background(allegro_vars, jogo);
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             switch(tabuleiro[i][j].tipo) {
@@ -128,7 +137,7 @@ void desenharTabuleiro(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars, t_j
     al_flip_display();
 }
 
-void desenharAnimacao(t_peca tabuleiro[8][8], int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo, bool linha) {
+void desenharAnimacao(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo, bool linha) {
     int passo = 64 / tempo_animacao;
     //calcula a posição inicial e final de cada peça
     int x1_inicial = x * 64;
@@ -206,7 +215,7 @@ void desenharAnimacao(t_peca tabuleiro[8][8], int x, int y, int pos_x, int pos_y
     }
 }
 
-void desenharAnimacao2(t_peca tabuleiro[8][8], int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo) {
+void desenharAnimacao2(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo) {
     int passo = 64 / tempo_animacao;
     //calcula a posição inicial e final de cada peça
     int x1_inicial = x;
@@ -249,7 +258,7 @@ void desenharAnimacao2(t_peca tabuleiro[8][8], int x, int y, int pos_x, int pos_
     }
 }
 
-bool verificar_vizinho(t_peca tabuleiro[8][8], int pos_x, int pos_y, t_peca *pecaSelecionada){
+bool verificar_vizinho(t_peca **tabuleiro, int pos_x, int pos_y, t_peca *pecaSelecionada){
     bool match = false;
     t_peca temp = tabuleiro[pecaSelecionada->x][pecaSelecionada->y];
     tabuleiro[pecaSelecionada->x][pecaSelecionada->y] = tabuleiro[pos_x][pos_y];
@@ -280,7 +289,7 @@ bool verificar_vizinho(t_peca tabuleiro[8][8], int pos_x, int pos_y, t_peca *pec
         return 0;
 }
 
-void verificarCombinacao(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars, t_jogo *jogo) {
+void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jogo *jogo) {
     bool trocou = false;
     int contador = 0;
     srand(time(NULL));
@@ -402,7 +411,7 @@ void verificarCombinacao(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars, t
 }
 
 
-void gerenciarEntrada(t_peca tabuleiro[8][8], int pos_x, int pos_y, t_peca *pecaSelecionada, t_allegro_vars *allegro_vars, t_jogo *jogo) {
+void gerenciarEntrada(t_peca **tabuleiro, int pos_x, int pos_y, t_peca *pecaSelecionada, t_allegro_vars *allegro_vars, t_jogo *jogo) {
             
             if(pos_x > 7 || pos_y > 7 || pos_x < 0 || pos_y < 0)
                 return;

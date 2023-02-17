@@ -52,7 +52,7 @@ t_allegro_vars *vars_init()
     al_init_font_addon();
     al_init_ttf_addon();
     
-    allegro_vars->font = al_load_font("./resources/font.ttf", 50, 0);
+    allegro_vars->font = al_load_font("./resources/font.ttf", 20, 0);
     must_init(allegro_vars->font, "ttf");
 
     must_init(al_init_image_addon(), "image addon");
@@ -155,14 +155,7 @@ t_allegro_vars *vars_init()
     return allegro_vars;
 }
 
-
-void jogo_main_loop(t_allegro_vars *allegro_vars)
-{
-    bool done = false;
-    bool redraw = true;
-
-    t_jogo *jogo = NULL;
-    t_peca tabuleiro[8][8];
+t_peca *alocarPeca(){
     t_peca *pecaSelecionada = NULL;
     if (!pecaSelecionada)
     {
@@ -175,7 +168,11 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
         (pecaSelecionada)->x = -1;
         (pecaSelecionada)->y = -1;
     }
+    return pecaSelecionada;
+}
 
+t_jogo *alocarJogo(){
+    t_jogo *jogo = NULL;
     if (!jogo)
     {
         jogo = malloc(sizeof(t_jogo));
@@ -191,7 +188,20 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
         (jogo)->egg = false;
         (jogo)->novoNivel = false;
     }
-    gerar_tab(tabuleiro, allegro_vars, jogo);
+    return jogo;
+}
+
+void jogo_main_loop(t_allegro_vars *allegro_vars)
+{
+    bool done = false;
+    bool redraw = true;
+
+    t_jogo *jogo = NULL;
+    t_peca **tabuleiro;
+    t_peca *pecaSelecionada = NULL;
+    pecaSelecionada = alocarPeca();
+    jogo = alocarJogo();
+    tabuleiro = gerar_tab(jogo);
     int pos_x;
     int pos_y;
     ALLEGRO_EVENT event;
@@ -267,6 +277,9 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
             redraw = false;
         }
     }
+    liberar_tabuleiro(tabuleiro);
+    free(jogo);
+    free(pecaSelecionada);
 }
 
 void vars_destroy(t_allegro_vars *allegro_vars)
