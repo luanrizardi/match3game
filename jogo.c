@@ -5,7 +5,7 @@
 #include "nivel.h"
 #include "recordes.h"
 
-#define NUM_ASSETS 6
+#define NUM_ASSETS 7
 #define NUM_LAYERS 18
 #define NUM_SOUNDS 2
 #define NUM_FONTS 1
@@ -144,6 +144,8 @@ t_allegro_vars *vars_init()
     must_init(allegro_vars->assets[4], "losango");
     allegro_vars->assets[5] = al_load_bitmap("./resources/sprites/PNG/simple/6.png");
     must_init(allegro_vars->assets[5], "pentagono");
+    allegro_vars->assets[6] = al_load_bitmap("./resources/sprites/PNG/simple/12.png");
+    must_init(allegro_vars->assets[6], "octogono");
     
     al_register_event_source(allegro_vars->queue, al_get_mouse_event_source());
     al_register_event_source(allegro_vars->queue, al_get_keyboard_event_source());
@@ -223,10 +225,11 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
                 if (jogo->pontuacao > 300 * jogo->nivel && jogo->nivel < 3)
                 {
                     jogo->nivel++;
+                    tabuleiro = gerar_tab(jogo);
                     jogo->novoNivel = true;
                 }
                 
-                if (jogo->nivel == 5){
+                if (jogo->nivel == 6){
                     save_records(jogo->pontuacao);
                     jogo->nivel++;
                 }
@@ -235,7 +238,11 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
                 break;
                 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-                if(event.mouse.button & 1){
+                if(jogo->instrucoes || jogo->leadboard || jogo->novoNivel){
+                    jogo->leadboard = false;
+                    jogo->instrucoes = false;
+                    jogo->novoNivel = false;
+                }else if(event.mouse.button & 1){
                     pos_y = event.mouse.x / 64;
                     pos_x = event.mouse.y / 64;
                     gerenciarEntrada(tabuleiro, pos_x, pos_y, pecaSelecionada, allegro_vars, jogo);
@@ -250,11 +257,6 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
                 }
                 if(event.keyboard.keycode == ALLEGRO_KEY_H || event.keyboard.keycode == ALLEGRO_KEY_F1)
                     jogo->instrucoes = true;
-                if(event.keyboard.keycode == ALLEGRO_KEY_ENTER){
-                    jogo->leadboard = false;
-                    jogo->instrucoes = false;
-                    jogo->novoNivel = false;
-                }
                 if(event.keyboard.keycode == ALLEGRO_KEY_E)
                     jogo->egg = true;
             redraw = true;

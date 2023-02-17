@@ -8,10 +8,10 @@ all: $(OBJS)
 	$(LD) -I $(ALLEGRO) mainn.c -o $(TARGET) $(OBJS)  $(STATIC)
 	$(TARGET)
 jogo.o: jogo.c
-	$(CC) -I $(ALLEGRO) -c jogo.c -o jogo.o -Wall
+	$(CC) -I $(ALLEGRO) -c jogo.c -o jogo.o -Wall -std=c99
 nivel.o: nivel.c
-	$(CC) -I $(ALLEGRO) -c nivel.c -o nivel.o -Wall
+	$(CC) -I $(ALLEGRO) -c nivel.c -o nivel.o -Wall -std=c99
 recordes.o: recordes.c
-	$(CC) -I $(ALLEGRO) -c recordes.c -o recordes.o -Wall
+	$(CC) -I $(ALLEGRO) -c recordes.c -o recordes.o -Wall -std=c99
 
 
