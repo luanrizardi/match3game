@@ -3,10 +3,10 @@
 #include "jogo.h"
 #include "tabuleiro.h"
 #include "nivel.h"
-
+#include "recordes.h"
 
 #define NUM_ASSETS 6
-#define NUM_LAYERS 6
+#define NUM_LAYERS 18
 #define NUM_SOUNDS 2
 #define NUM_FONTS 1
 #define linhas 8
@@ -107,6 +107,30 @@ t_allegro_vars *vars_init()
     must_init(allegro_vars->backgrounds[4], "5");
     allegro_vars->backgrounds[5] = al_load_bitmap("./resources/layers/6.png");
     must_init(allegro_vars->backgrounds[5], "6");
+    allegro_vars->backgrounds[6] = al_load_bitmap("./resources/layers2/1.png");
+    must_init(allegro_vars->backgrounds[6], "7");
+    allegro_vars->backgrounds[7] = al_load_bitmap("./resources/layers2/2.png");
+    must_init(allegro_vars->backgrounds[7], "8");
+    allegro_vars->backgrounds[8] = al_load_bitmap("./resources/layers2/3.png");
+    must_init(allegro_vars->backgrounds[8], "9");
+    allegro_vars->backgrounds[9] = al_load_bitmap("./resources/layers2/4.png");
+    must_init(allegro_vars->backgrounds[9], "10");
+    allegro_vars->backgrounds[10] = al_load_bitmap("./resources/layers2/5.png");
+    must_init(allegro_vars->backgrounds[10], "11");
+    allegro_vars->backgrounds[11] = al_load_bitmap("./resources/layers2/6.png");
+    must_init(allegro_vars->backgrounds[11], "12");
+    allegro_vars->backgrounds[12] = al_load_bitmap("./resources/layers3/1.png");
+    must_init(allegro_vars->backgrounds[12], "13");
+    allegro_vars->backgrounds[13] = al_load_bitmap("./resources/layers3/2.png");
+    must_init(allegro_vars->backgrounds[13], "14");
+    allegro_vars->backgrounds[14] = al_load_bitmap("./resources/layers3/3.png");
+    must_init(allegro_vars->backgrounds[14], "15");
+    allegro_vars->backgrounds[15] = al_load_bitmap("./resources/layers3/4.png");
+    must_init(allegro_vars->backgrounds[15], "16");
+    allegro_vars->backgrounds[16] = al_load_bitmap("./resources/layers3/5.png");
+    must_init(allegro_vars->backgrounds[16], "17");
+    allegro_vars->backgrounds[17] = al_load_bitmap("./resources/layers3/6.png");
+    must_init(allegro_vars->backgrounds[17], "18");
 
     allegro_vars->assets[0] = al_load_bitmap("./resources/sprites/PNG/simple/1.png");
     must_init(allegro_vars->assets[0], "triangulo");
@@ -118,6 +142,8 @@ t_allegro_vars *vars_init()
     must_init(allegro_vars->assets[3], "hexagono");
     allegro_vars->assets[4] = al_load_bitmap("./resources/sprites/PNG/simple/5.png");
     must_init(allegro_vars->assets[4], "losango");
+    allegro_vars->assets[5] = al_load_bitmap("./resources/sprites/PNG/simple/6.png");
+    must_init(allegro_vars->assets[5], "pentagono");
     
     al_register_event_source(allegro_vars->queue, al_get_mouse_event_source());
     al_register_event_source(allegro_vars->queue, al_get_keyboard_event_source());
@@ -130,27 +156,6 @@ t_allegro_vars *vars_init()
 }
 
 
-void gerar_tab(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars) {
-       
-    // seed the random number generator
-    srand(time(NULL));
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            // assign a random type to the piece
-            tabuleiro[i][j].tipo = rand() % 5;
-            tabuleiro[i][j].x = i * 64;
-            tabuleiro[i][j].y = j * 64;
-            tabuleiro[i][j].estado = 0;
-            // check for matching pieces in a row/column
-            while ((i > 1 && tabuleiro[i][j].tipo == tabuleiro[i-1][j].tipo && tabuleiro[i][j].tipo == tabuleiro[i-2][j].tipo) ||
-                (j > 1 && tabuleiro[i][j].tipo == tabuleiro[i][j-1].tipo && tabuleiro[i][j].tipo == tabuleiro[i][j-2].tipo)) {
-                tabuleiro[i][j].tipo = rand() % 5;
-            }
-        }
-    }
-}
-
-
 void jogo_main_loop(t_allegro_vars *allegro_vars)
 {
     bool done = false;
@@ -159,7 +164,6 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
     t_jogo *jogo = NULL;
     t_peca tabuleiro[8][8];
     t_peca *pecaSelecionada = NULL;
-    gerar_tab(tabuleiro, allegro_vars);
     if (!pecaSelecionada)
     {
         pecaSelecionada = malloc(sizeof(t_peca));
@@ -182,10 +186,18 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
         }
         (jogo)->pontuacao = 0;
         (jogo)->nivel = 1;
+        (jogo)->leadboard = false;
+        (jogo)->instrucoes = false;
+        (jogo)->egg = false;
+        (jogo)->novoNivel = false;
     }
+    gerar_tab(tabuleiro, allegro_vars, jogo);
     int pos_x;
     int pos_y;
     ALLEGRO_EVENT event;
+
+    unsigned char key[ALLEGRO_KEY_MAX];
+    memset(key, 0, sizeof(key));
 
     al_play_sample(allegro_vars->sounds[1], 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
     al_start_timer(allegro_vars->timer);
@@ -197,7 +209,18 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
         switch(event.type)
         {
             case ALLEGRO_EVENT_TIMER:
-                 // once again, no game logic. fishy? maybe.
+
+                if (jogo->pontuacao > 300 * jogo->nivel && jogo->nivel < 3)
+                {
+                    jogo->nivel++;
+                    jogo->novoNivel = true;
+                }
+                
+                if (jogo->nivel == 5){
+                    save_records(jogo->pontuacao);
+                    jogo->nivel++;
+                }
+                
                 redraw = true;
                 break;
                 
@@ -207,6 +230,23 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
                     pos_x = event.mouse.y / 64;
                     gerenciarEntrada(tabuleiro, pos_x, pos_y, pecaSelecionada, allegro_vars, jogo);
             }
+            redraw = true;
+            break;
+            
+            case ALLEGRO_EVENT_KEY_DOWN:
+                if(event.keyboard.keycode == ALLEGRO_KEY_L){
+                    save_records(jogo->pontuacao);
+                    jogo->leadboard = true;
+                }
+                if(event.keyboard.keycode == ALLEGRO_KEY_H || event.keyboard.keycode == ALLEGRO_KEY_F1)
+                    jogo->instrucoes = true;
+                if(event.keyboard.keycode == ALLEGRO_KEY_ENTER){
+                    jogo->leadboard = false;
+                    jogo->instrucoes = false;
+                    jogo->novoNivel = false;
+                }
+                if(event.keyboard.keycode == ALLEGRO_KEY_E)
+                    jogo->egg = true;
             redraw = true;
             break;
 
@@ -223,10 +263,7 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
         if(redraw && al_is_event_queue_empty(allegro_vars->queue))
         {
             //desenhar_tabuleiro
-            desenhar_background(allegro_vars, jogo);
-            desenharTabuleiro(tabuleiro, allegro_vars);
-            al_flip_display();
-
+            desenharTabuleiro(tabuleiro, allegro_vars, jogo);
             redraw = false;
         }
     }

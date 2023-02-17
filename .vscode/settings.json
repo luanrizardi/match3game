@@ -4,7 +4,8 @@
         "allegro_image.h": "c",
         "stdlib.h": "c",
         "allegro.h": "c",
-        "allegro_ttf.h": "c"
+        "allegro_ttf.h": "c",
+        "recordes.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

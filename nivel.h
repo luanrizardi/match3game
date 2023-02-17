@@ -1,12 +1,17 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
 
 #ifndef _NIVEL_H_
 #define _NIVEL_H_
 
 void desenhar_background(t_allegro_vars *allegro_vars, t_jogo *jogo);
 
-void desenharTabuleiro(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars);
+void show_txt(ALLEGRO_FONT *font, char *file_name);
+
+void gerar_tab(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars, t_jogo *jogo);
+
+void desenharTabuleiro(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars, t_jogo *jogo);
 
 void desenharAnimacao(t_peca tabuleiro[8][8], int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo, bool linha);
 

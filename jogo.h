@@ -34,10 +34,6 @@ void must_init(bool test, const char *description);
 
 t_allegro_vars *vars_init();
 
-//void gerar_tab(t_peca tabuleiro[8][8], t_allegro_vars *allegro_vars);
-
-//void gerenciarEntrada(t_peca tabuleiro[8][8], int pos_x, int pos_y, t_peca pecaSelecionada, t_allegro_vars *allegro_vars);
-
 void jogo_main_loop(t_allegro_vars *allegro_vars);
 
 void vars_destroy(t_allegro_vars *allegro_vars);
