@@ -4,6 +4,7 @@
 #include "tabuleiro.h"
 #include "nivel.h"
 #include "recordes.h"
+#include <allegro5/allegro_primitives.h>
 
 #define NUM_ASSETS 6
 #define NUM_LAYERS 18
@@ -45,7 +46,6 @@ t_allegro_vars *vars_init()
     must_init(allegro_vars->disp, "display");
 
     al_init_font_addon();
-    al_init_ttf_addon();
     
     /* allegro_vars->font = al_load_font("./resources/font.ttf", 20, 0);
     must_init(allegro_vars->font, "ttf"); */
