@@ -5,7 +5,8 @@ INSTRUCOES:
 Faça combinações de 3 ou mais peças iguais em uma linha ou em uma coluna.
 Para isso clique em uma peça e depois na peça vizinha para trocarem de lugar.
 A cada 1000 pontos você passa de nível e a dificuldade aumenta.
+No nível 2, há mais um tipo de peça.
+No nível 3, há missões, consiga completar 3 para ganhar o jogo e salvar seu recorde.
 Tente fazer pontuações incríveis para ter a maior pontuação.
 Para fechar o jogo clique no X no canto superior direito.
 Para ver as pontuações, clique na tecla L.
-Você pode jogar novamente pressionando a tecla ENTER.

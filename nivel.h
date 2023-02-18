@@ -9,6 +9,8 @@ void desenhar_background(t_allegro_vars *allegro_vars, t_jogo *jogo);
 
 void show_txt(ALLEGRO_FONT *font, char *file_name);
 
+void criarMissao(t_jogo *jogo);
+
 t_peca **gerar_tab(t_jogo *jogo);
 
 void liberar_tabuleiro(t_peca **tabuleiro);
@@ -25,6 +27,5 @@ void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jog
 
 void gerenciarEntrada(t_peca **tabuleiro, int pos_x, int pos_y, t_peca *pecaSelecionada, t_allegro_vars *allegro_vars, t_jogo *jogo);
 
-//void desenharTabuleiro(t_peca tabuleiro, t_allegro_vars *allegro_vars);
 
 #endif

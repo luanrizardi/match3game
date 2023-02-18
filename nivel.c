@@ -9,6 +9,7 @@
 #include <allegro5/allegro_ttf.h>
 
 void desenhar_background(t_allegro_vars *allegro_vars, t_jogo *jogo){
+    char buffer[50];
     if(jogo->nivel == 1){
     al_clear_to_color(al_map_rgb(255, 255, 255));
     al_draw_bitmap(allegro_vars->backgrounds[0], 0, 0, 0);
@@ -35,22 +36,46 @@ void desenhar_background(t_allegro_vars *allegro_vars, t_jogo *jogo){
     al_draw_bitmap(allegro_vars->backgrounds[15], 0, 0, 0);
     al_draw_bitmap(allegro_vars->backgrounds[16], 0, 0, 0);
     al_draw_bitmap(allegro_vars->backgrounds[17], 0, 0, 0);
+
+    if(jogo->tipoMissao == 0)
+        al_draw_scaled_bitmap(allegro_vars->assets[0], 0, 0, 64, 64, 980, 170 , 64, 64, 0);
+    else if(jogo->tipoMissao == 1)
+        al_draw_scaled_bitmap(allegro_vars->assets[1], 0, 0, 64, 64, 980, 170 , 64, 64, 0);
+    else if(jogo->tipoMissao == 2)
+        al_draw_scaled_bitmap(allegro_vars->assets[2], 0, 0, 64, 64, 980, 170 , 64, 64, 0);
+    else if(jogo->tipoMissao == 3)
+        al_draw_scaled_bitmap(allegro_vars->assets[3], 0, 0, 64, 64, 980, 170 , 64, 64, 0);
+    else if(jogo->tipoMissao == 4)
+        al_draw_scaled_bitmap(allegro_vars->assets[4], 0, 0, 64, 64, 980, 170 , 64, 64, 0);
+    else if(jogo->tipoMissao == 5)
+        al_draw_scaled_bitmap(allegro_vars->assets[5], 0, 0, 64, 64, 980, 170 , 64, 64, 0);
+
+    sprintf(buffer, "MISSÃO: %d / %d", jogo->missaoAtual, jogo->missaoTotal);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 - 2, 200, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 + 2, 200, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 200 - 2, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 200 + 2, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(0, 0, 0), 900, 200, ALLEGRO_ALIGN_CENTRE, buffer);
     }
     
-    char buffer[50];
     sprintf(buffer, "PONTUAÇÃO: %d", jogo->pontuacao);
     al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 - 2, 100, ALLEGRO_ALIGN_CENTRE, buffer);
     al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 + 2, 100, ALLEGRO_ALIGN_CENTRE, buffer);
     al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 100 - 2, ALLEGRO_ALIGN_CENTRE, buffer);
     al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 100 + 2, ALLEGRO_ALIGN_CENTRE, buffer);
-
     al_draw_text(allegro_vars->font, al_map_rgb(0, 0, 0), 900, 100, ALLEGRO_ALIGN_CENTRE, buffer);
+
     sprintf(buffer, "NÍVEL: %d", jogo->nivel);
     al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 - 2, 300, ALLEGRO_ALIGN_CENTRE, buffer);
     al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 + 2, 300, ALLEGRO_ALIGN_CENTRE, buffer);
     al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 300 - 2, ALLEGRO_ALIGN_CENTRE, buffer);
     al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 300 + 2, ALLEGRO_ALIGN_CENTRE, buffer);
     al_draw_text(allegro_vars->font, al_map_rgb(0, 0, 0), 900, 300, ALLEGRO_ALIGN_CENTRE, buffer);
+}
+
+void criarMissao(t_jogo *jogo){
+    srand(time(NULL));
+    jogo->tipoMissao = rand() % 6;
 }
 
 void show_txt(ALLEGRO_FONT *font, char *file_name)
@@ -63,42 +88,38 @@ void show_txt(ALLEGRO_FONT *font, char *file_name)
         fprintf(stderr, "nao foi possivel abrir %s", file_name);
 
     al_clear_to_color(al_map_rgb(173, 216, 230));
+    
     while (!feof(txt_file))
     {
         fgets(str, 1024, txt_file);
-        al_draw_text(font, al_map_rgb(0, 0, 0), 640 - 2, i + 100, ALLEGRO_ALIGN_CENTRE, str);
-        al_draw_text(font, al_map_rgb(0, 0, 0), 640 + 2, i + 100, ALLEGRO_ALIGN_CENTRE, str);
-        al_draw_text(font, al_map_rgb(0, 0, 0), 640, i + 100 + 2, ALLEGRO_ALIGN_CENTRE, str);
-        al_draw_text(font, al_map_rgb(0, 0, 0), 640, i + 100 - 2, ALLEGRO_ALIGN_CENTRE, str);
-
-        al_draw_text(font, al_map_rgb(255, 255, 255), 640, i + 100, ALLEGRO_ALIGN_CENTRE, str);
+        al_draw_text(font, al_map_rgb(255, 255, 255), 640 - 2, i + 100, ALLEGRO_ALIGN_CENTRE, str);
+        al_draw_text(font, al_map_rgb(255, 255, 255), 640 + 2, i + 100, ALLEGRO_ALIGN_CENTRE, str);
+        al_draw_text(font, al_map_rgb(255, 255, 255), 640, i + 100 + 2, ALLEGRO_ALIGN_CENTRE, str);
+        al_draw_text(font, al_map_rgb(255, 255, 255), 640, i + 100 - 2, ALLEGRO_ALIGN_CENTRE, str);
+        al_draw_text(font, al_map_rgb(0,0,0), 640, i + 100, ALLEGRO_ALIGN_CENTRE, str);
         i += 45;
     }
-    al_draw_text(font, al_map_rgb(0, 0, 0), 640 - 2, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
-    al_draw_text(font, al_map_rgb(0, 0, 0), 640 + 2, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
-    al_draw_text(font, al_map_rgb(0, 0, 0), 640, i + 100 + 2, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
-    al_draw_text(font, al_map_rgb(0, 0, 0), 640, i + 100 - 2, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
-
-    al_draw_text(font, al_map_rgb(255, 255, 255), 640, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+    al_draw_text(font, al_map_rgb(255, 255, 255), 640 - 2, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+    al_draw_text(font, al_map_rgb(255, 255, 255), 640 + 2, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+    al_draw_text(font, al_map_rgb(255, 255, 255), 640, i + 100 + 2, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+    al_draw_text(font, al_map_rgb(255, 255, 255), 640, i + 100 - 2, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+    al_draw_text(font, al_map_rgb(0,0,0), 640, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
     fclose(txt_file);
 }
 
 t_peca **gerar_tab(t_jogo *jogo) {
     t_peca **tabuleiro = (t_peca**) malloc(8 * sizeof(t_peca*));  
-    // seed the random number generator
     srand(time(NULL));
     for (int i = 0; i < 8; i++) {
         tabuleiro[i] = (t_peca*) malloc(8 * sizeof(t_peca));
         for (int j = 0; j < 8; j++) {
-            // assign a random type to the piece
             if(jogo->nivel == 1)
             tabuleiro[i][j].tipo = rand() % 5;
             else
             tabuleiro[i][j].tipo = rand() % 6;
             tabuleiro[i][j].x = i * 64;
             tabuleiro[i][j].y = j * 64;
-            tabuleiro[i][j].estado = 0;
-            // check for matching pieces in a row/column
+            // checa se ha pecas combinando
             while ((i > 1 && tabuleiro[i][j].tipo == tabuleiro[i-1][j].tipo && tabuleiro[i][j].tipo == tabuleiro[i-2][j].tipo) ||
                 (j > 1 && tabuleiro[i][j].tipo == tabuleiro[i][j-1].tipo && tabuleiro[i][j].tipo == tabuleiro[i][j-2].tipo)) {
                 tabuleiro[i][j].tipo = rand() % 5;
@@ -108,7 +129,6 @@ t_peca **gerar_tab(t_jogo *jogo) {
     return tabuleiro;
 }
 
-// libera a memória alocada para um tabuleiro 8x8 do tipo t_peca **
 void liberar_tabuleiro(t_peca **tabuleiro) {
     for (int i = 0; i < 8; i++) {
         free(tabuleiro[i]);
@@ -127,6 +147,9 @@ void desenharTabuleiro(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jogo 
     }
     else if(jogo->menu){
         show_txt(allegro_vars->font, "menu.txt");
+    }
+    else if(jogo->jogoAcabou){
+        show_txt(allegro_vars->font, "records.txt");
     }
     else{
     desenhar_background(allegro_vars, jogo);
@@ -225,13 +248,9 @@ void desenharAnimacao(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, in
         tabuleiro[pos_x][pos_y].x = x2_inicial;
         tabuleiro[pos_x][pos_y].y = y2_inicial;
     }
-    
-    
     //enquanto a animação não terminar
-    
         tabuleiro[x][y].x = x1_inicial;
         tabuleiro[x][y].y = y1_inicial;
-
         desenharTabuleiro(tabuleiro, allegro_vars, jogo);
     }
 }
@@ -327,6 +346,8 @@ void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jog
                 ite++;
             }
             if(elementos>= 3){
+                if(tabuleiro[i][j].tipo == jogo->tipoMissao)
+                    jogo->missaoAtual++;
                 aux = j + ite;
                 for (k = j; k < aux; k++){
                     tabuleiro[i][k].tipo = -1;
@@ -374,6 +395,8 @@ void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jog
                 ite++;
             }
             if(elementos>= 3){
+                if(tabuleiro[i][j].tipo == jogo->tipoMissao)
+                    jogo->missaoAtual++;
                 aux = i - ite;
                 for (k = i; k > aux; k--){
                     tabuleiro[k][j].tipo = -1;
@@ -402,8 +425,8 @@ void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jog
                     jogo->pontuacao += contador * 10;
                 desenharTabuleiro(tabuleiro, allegro_vars, jogo);
             } 
-            }
         }
+    }
     if(trocou)
         verificarCombinacao(tabuleiro, allegro_vars, jogo);
     else
@@ -422,21 +445,18 @@ void gerenciarEntrada(t_peca **tabuleiro, int pos_x, int pos_y, t_peca *pecaSele
             } else {
                 // troca as peças de lugar
                 if(verificar_vizinho(tabuleiro, pos_x, pos_y, pecaSelecionada)){
-                desenharAnimacao(tabuleiro,pecaSelecionada->x, pecaSelecionada->y, pos_x, pos_y, 10, allegro_vars, jogo, false);
-                t_peca temp = tabuleiro[pecaSelecionada->x][pecaSelecionada->y];
-                tabuleiro[pecaSelecionada->x][pecaSelecionada->y] = tabuleiro[pos_x][pos_y];
-                tabuleiro[pos_x][pos_y] = temp;
+                    desenharAnimacao(tabuleiro,pecaSelecionada->x, pecaSelecionada->y, pos_x, pos_y, 10, allegro_vars, jogo, false);
+                    t_peca temp = tabuleiro[pecaSelecionada->x][pecaSelecionada->y];
+                    tabuleiro[pecaSelecionada->x][pecaSelecionada->y] = tabuleiro[pos_x][pos_y];
+                    tabuleiro[pos_x][pos_y] = temp;
 
-                //al_play_sample(allegro_vars->sounds[0], 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-                verificarCombinacao(tabuleiro, allegro_vars, jogo);
+                    verificarCombinacao(tabuleiro, allegro_vars, jogo);
 
-                pecaSelecionada->x = -1;
-                pecaSelecionada->y = -1;
-                
-               
+                    pecaSelecionada->x = -1;
+                    pecaSelecionada->y = -1;
                }else{
-                pecaSelecionada->x = -1;
-                pecaSelecionada->y = -1;
-            }
+                    pecaSelecionada->x = -1;
+                    pecaSelecionada->y = -1;
+                }
             }
 }

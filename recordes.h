@@ -1,10 +1,10 @@
 #include <allegro5/allegro_font.h>
 
-#ifndef _RECORDS_H_
-#define _RECORDS_H_
+#ifndef _RECORDES_H_
+#define _RECORDES_H_
 
-int *get_records_array();
+int *get_recordes_array();
 
-void save_records(int points);
+void save_recordes(int points);
 
 #endif

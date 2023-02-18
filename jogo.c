@@ -5,12 +5,13 @@
 #include "nivel.h"
 #include "recordes.h"
 
-#define NUM_ASSETS 7
+#define NUM_ASSETS 6
 #define NUM_LAYERS 18
 #define NUM_SOUNDS 3
 #define NUM_FONTS 1
 #define linhas 8
 #define colunas 8
+#define pontNivel 1000
 
 void must_init(bool test, const char *description)
 {
@@ -37,12 +38,6 @@ t_allegro_vars *vars_init()
     allegro_vars->timer = al_create_timer(1.0 / 60.0);
     must_init(allegro_vars->timer, "timer");
 
-    allegro_vars->tick = al_create_timer(1.0 / 10.0);
-    must_init(allegro_vars->tick, "tick");
-
-    allegro_vars->time_limit = al_create_timer(1.0 / 1.0);
-    must_init(allegro_vars->time_limit, "time_limit");
-
     allegro_vars->queue = al_create_event_queue();
     must_init(allegro_vars->queue, "queue");
 
@@ -52,8 +47,11 @@ t_allegro_vars *vars_init()
     al_init_font_addon();
     al_init_ttf_addon();
     
-    allegro_vars->font = al_load_font("./resources/font.ttf", 20, 0);
-    must_init(allegro_vars->font, "ttf");
+    /* allegro_vars->font = al_load_font("./resources/font.ttf", 20, 0);
+    must_init(allegro_vars->font, "ttf"); */
+
+    allegro_vars->font = al_create_builtin_font();
+    must_init(allegro_vars->font, "font");
 
     must_init(al_init_image_addon(), "image addon");
 
@@ -146,15 +144,11 @@ t_allegro_vars *vars_init()
     must_init(allegro_vars->assets[4], "losango");
     allegro_vars->assets[5] = al_load_bitmap("./resources/sprites/PNG/simple/6.png");
     must_init(allegro_vars->assets[5], "pentagono");
-    allegro_vars->assets[6] = al_load_bitmap("./resources/sprites/PNG/simple/12.png");
-    must_init(allegro_vars->assets[6], "octogono");
     
     al_register_event_source(allegro_vars->queue, al_get_mouse_event_source());
     al_register_event_source(allegro_vars->queue, al_get_keyboard_event_source());
     al_register_event_source(allegro_vars->queue, al_get_display_event_source(allegro_vars->disp));
     al_register_event_source(allegro_vars->queue, al_get_timer_event_source(allegro_vars->timer));
-    al_register_event_source(allegro_vars->queue, al_get_timer_event_source(allegro_vars->tick));
-    al_register_event_source(allegro_vars->queue, al_get_timer_event_source(allegro_vars->time_limit));
 
     return allegro_vars;
 }
@@ -192,6 +186,11 @@ t_jogo *alocarJogo(){
         (jogo)->egg = false;
         (jogo)->novoNivel = false;
         (jogo)->menu = true;
+        (jogo)->missaoTotal = 6;
+        (jogo)->missaoAtual = 0;
+        (jogo)->tipoMissao = -1;
+        (jogo)->qtdMissoes = 0;
+        (jogo)->jogoAcabou = false;
     }
     return jogo;
 }
@@ -200,7 +199,6 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
 {
     bool done = false;
     bool redraw = true;
-
     t_jogo *jogo = NULL;
     t_peca **tabuleiro;
     t_peca *pecaSelecionada = NULL;
@@ -225,22 +223,30 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
         {
             case ALLEGRO_EVENT_TIMER:
 
-                if (jogo->pontuacao > 300 * jogo->nivel && jogo->nivel < 3)
+                if (jogo->pontuacao > pontNivel * jogo->nivel && jogo->nivel < 3)
                 {
                     jogo->nivel++;
                     al_play_sample(allegro_vars->sounds[2], 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                    if(jogo->nivel == 3)
+                        criarMissao(jogo);
                     tabuleiro = gerar_tab(jogo);
                     jogo->novoNivel = true;
                 }
-                
-                if (jogo->nivel == 6){
-                    save_records(jogo->pontuacao);
-                    jogo->nivel++;
+                if(jogo->missaoAtual >= jogo->missaoTotal){
+                    jogo->pontuacao += 100;
+                    criarMissao(jogo);
+                    jogo->missaoAtual = 0;
+                    jogo->qtdMissoes++;
                 }
-                
+                if(jogo->qtdMissoes == 3){
+                    save_recordes(jogo->pontuacao);
+                    jogo->jogoAcabou = true;
+                    jogo->qtdMissoes++;
+                    
+                }
                 redraw = true;
                 break;
-                
+
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 if(jogo->instrucoes || jogo->leadboard || jogo->novoNivel || jogo->menu){
                     jogo->leadboard = false;
@@ -257,7 +263,6 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
             
             case ALLEGRO_EVENT_KEY_DOWN:
                 if(event.keyboard.keycode == ALLEGRO_KEY_L){
-                    save_records(jogo->pontuacao);
                     jogo->leadboard = true;
                 }
                 if(event.keyboard.keycode == ALLEGRO_KEY_H || event.keyboard.keycode == ALLEGRO_KEY_F1)
@@ -279,7 +284,6 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
 
         if(redraw && al_is_event_queue_empty(allegro_vars->queue))
         {
-            //desenhar_tabuleiro
             desenharTabuleiro(tabuleiro, allegro_vars, jogo);
             redraw = false;
         }
@@ -305,6 +309,5 @@ void vars_destroy(t_allegro_vars *allegro_vars)
     al_destroy_font(allegro_vars->font);
     al_destroy_display(allegro_vars->disp);
     al_destroy_timer(allegro_vars->timer);
-    al_destroy_timer(allegro_vars->tick);
     al_destroy_event_queue(allegro_vars->queue);
 }
