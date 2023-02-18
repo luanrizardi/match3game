@@ -4,7 +4,6 @@
 #include "tabuleiro.h"
 #include "nivel.h"
 #include "recordes.h"
-#include <allegro5/allegro_primitives.h>
 
 #define NUM_ASSETS 6
 #define NUM_LAYERS 18
