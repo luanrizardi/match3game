@@ -39,8 +39,17 @@ void desenhar_background(t_allegro_vars *allegro_vars, t_jogo *jogo){
     
     char buffer[50];
     sprintf(buffer, "PONTUAÇÃO: %d", jogo->pontuacao);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 - 2, 100, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 + 2, 100, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 100 - 2, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 100 + 2, ALLEGRO_ALIGN_CENTRE, buffer);
+
     al_draw_text(allegro_vars->font, al_map_rgb(0, 0, 0), 900, 100, ALLEGRO_ALIGN_CENTRE, buffer);
     sprintf(buffer, "NÍVEL: %d", jogo->nivel);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 - 2, 300, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900 + 2, 300, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 300 - 2, ALLEGRO_ALIGN_CENTRE, buffer);
+    al_draw_text(allegro_vars->font, al_map_rgb(255, 255, 255), 900, 300 + 2, ALLEGRO_ALIGN_CENTRE, buffer);
     al_draw_text(allegro_vars->font, al_map_rgb(0, 0, 0), 900, 300, ALLEGRO_ALIGN_CENTRE, buffer);
 }
 
@@ -57,10 +66,20 @@ void show_txt(ALLEGRO_FONT *font, char *file_name)
     while (!feof(txt_file))
     {
         fgets(str, 1024, txt_file);
-        al_draw_text(font, al_map_rgb(0, 0, 0), 100, i + 100, 0, str);
+        al_draw_text(font, al_map_rgb(0, 0, 0), 640 - 2, i + 100, ALLEGRO_ALIGN_CENTRE, str);
+        al_draw_text(font, al_map_rgb(0, 0, 0), 640 + 2, i + 100, ALLEGRO_ALIGN_CENTRE, str);
+        al_draw_text(font, al_map_rgb(0, 0, 0), 640, i + 100 + 2, ALLEGRO_ALIGN_CENTRE, str);
+        al_draw_text(font, al_map_rgb(0, 0, 0), 640, i + 100 - 2, ALLEGRO_ALIGN_CENTRE, str);
+
+        al_draw_text(font, al_map_rgb(255, 255, 255), 640, i + 100, ALLEGRO_ALIGN_CENTRE, str);
         i += 45;
     }
-    al_draw_text(font, al_map_rgb(0, 0, 0), 100, i + 100, 0, "Clique para continuar o jogo!");
+    al_draw_text(font, al_map_rgb(0, 0, 0), 640 - 2, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+    al_draw_text(font, al_map_rgb(0, 0, 0), 640 + 2, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+    al_draw_text(font, al_map_rgb(0, 0, 0), 640, i + 100 + 2, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+    al_draw_text(font, al_map_rgb(0, 0, 0), 640, i + 100 - 2, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
+
+    al_draw_text(font, al_map_rgb(255, 255, 255), 640, i + 100, ALLEGRO_ALIGN_CENTRE, "Clique para jogar!");
     fclose(txt_file);
 }
 
@@ -105,7 +124,9 @@ void desenharTabuleiro(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jogo 
         show_txt(allegro_vars->font, "instrucoes.txt");
     else if(jogo->novoNivel){
         show_txt(allegro_vars->font, "nivel.txt");
-        tabuleiro = gerar_tab(jogo);
+    }
+    else if(jogo->menu){
+        show_txt(allegro_vars->font, "menu.txt");
     }
     else{
     desenhar_background(allegro_vars, jogo);
@@ -215,7 +236,7 @@ void desenharAnimacao(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, in
     }
 }
 
-void desenharAnimacao2(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo) {
+void desenharAnimacao2(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo, int k) {
     int passo = 64 / tempo_animacao;
     //calcula a posição inicial e final de cada peça
     int x1_inicial = x;
@@ -251,8 +272,8 @@ void desenharAnimacao2(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, i
     
     //enquanto a animação não terminar
     
-        tabuleiro[x / 64][y / 64].x = x1_inicial;
-        tabuleiro[x / 64][y / 64].y = y1_inicial;
+        tabuleiro[k][y / 64].x = x1_inicial;
+        tabuleiro[k][y / 64].y = y1_inicial;
 
         desenharTabuleiro(tabuleiro, allegro_vars, jogo);
     }
@@ -299,7 +320,7 @@ void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jog
     //verifica combinações nas linhas
     for (i = 0; i < 8; i++) {
         for (j = 0; j < 6; j++) {
-             elementos = 1;
+            elementos = 1;
             ite = 1;
             while(((j + ite) < 8) && (tabuleiro[i][j].tipo == tabuleiro[i][j + ite].tipo)){
                 elementos++;
@@ -308,10 +329,8 @@ void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jog
             if(elementos>= 3){
                 aux = j + ite;
                 for (k = j; k < aux; k++){
-                    printf("i: %d, k: %d \n", i, k);
                     tabuleiro[i][k].tipo = -1;
                 }
-                
                 al_play_sample(allegro_vars->sounds[0], 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
                 for (k = i; k > 0; k--){
                     aux = j + ite;
@@ -325,11 +344,14 @@ void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jog
                     }
                 trocou = true;
                 linha = true;
-                for (k = j; k <= j + 2; k++)
+                for (k = j; k < j + elementos; k++)
                 {
                     tabuleiro[0][k].x = tabuleiro[0][k].x - 35;
+                    if(jogo->nivel == 1)
                     tabuleiro[0][k].tipo = rand() % 5;
-                    desenharAnimacao2(tabuleiro, tabuleiro[0][k].x, tabuleiro[0][k].y, (tabuleiro[0][k].x + 35), tabuleiro[0][k].y , 10, allegro_vars, jogo);
+                    else
+                    tabuleiro[0][k].tipo = rand() % 6;
+                    desenharAnimacao2(tabuleiro, tabuleiro[0][k].x, tabuleiro[0][k].y, (tabuleiro[0][k].x + 35), tabuleiro[0][k].y , 10, allegro_vars, jogo, 0);
                 }
                 linha = false;
                 contador += 3;
@@ -345,36 +367,43 @@ void verificarCombinacao(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jog
     for (j = 0; j < 8; j++) {
         //int vazios = 0;
         for (i = 8 - 1; i >= 0; i--) {
-            if (i > 1 && tabuleiro[i][j].tipo == tabuleiro[i - 1][j].tipo  && tabuleiro[i][j].tipo == tabuleiro[i - 2][j].tipo) {
-                tabuleiro[i][j].tipo = -1;
-                tabuleiro[i - 1][j].tipo = -1;
-                tabuleiro[i - 2][j].tipo = -1;
-                al_play_sample(allegro_vars->sounds[0], 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-                for (k = i; k > 2; k--)
-                {
-                    desenharAnimacao(tabuleiro, tabuleiro[k-3][j].x / 64, tabuleiro[k-3][j].y / 64, tabuleiro[k][j].x / 64, tabuleiro[k][j].y / 64, 32, allegro_vars, jogo, false);
-                    t_peca temp = tabuleiro[k][j];
-                    tabuleiro[k][j] = tabuleiro[k - 3][j];
-                    tabuleiro[k - 3][j] = temp;
+            elementos = 1;
+            ite = 1;
+            while(((i - ite) >= 0) && (tabuleiro[i][j].tipo == tabuleiro[i - ite][j].tipo)){
+                elementos++;
+                ite++;
+            }
+            if(elementos>= 3){
+                aux = i - ite;
+                for (k = i; k > aux; k--){
+                    tabuleiro[k][j].tipo = -1;
                 }
+                al_play_sample(allegro_vars->sounds[0], 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                for (k = i; k > 0 + ite; k--){
+                        desenharAnimacao(tabuleiro, tabuleiro[k-ite][j].x / 64, tabuleiro[k-ite][j].y / 64, tabuleiro[k][j].x / 64, tabuleiro[k][j].y / 64, 32, allegro_vars, jogo, false);
+                        t_peca temp = tabuleiro[k][j];
+                        tabuleiro[k][j] = tabuleiro[k - ite][j];
+                        tabuleiro[k - ite][j] = temp;
+                    }
                 trocou = true;
-                for (k = 2; k >=0; k--)
+                for (k = ite; k >= 0; k--)
                 {
-                    //tabuleiro[k][j].x = tabuleiro[k][j].x;
+                    tabuleiro[k][j].x = tabuleiro[k][j].x - 35;
                     if(jogo->nivel == 1)
                     tabuleiro[k][j].tipo = rand() % 5;
                     else
-                    tabuleiro[k][j].tipo = rand() %6;
-                    //desenharAnimacao2(tabuleiro, tabuleiro[k][j].x, tabuleiro[k][j].y, (tabuleiro[k][j].x + 35 * k), tabuleiro[k][j].y , 1, allegro_vars, jogo);
+                    tabuleiro[k][j].tipo = rand() % 6;
+                    desenharAnimacao2(tabuleiro, tabuleiro[k][j].x, tabuleiro[k][j].y, (tabuleiro[k][j].x + 35), tabuleiro[k][j].y , 32, allegro_vars, jogo, k);
                 }
                 contador += 3;
-                jogo->pontuacao += contador * 10;
+                if(jogo->egg)
+                    jogo->pontuacao += contador * 20;
+                else
+                    jogo->pontuacao += contador * 10;
                 desenharTabuleiro(tabuleiro, allegro_vars, jogo);
+            } 
             }
         }
-    }
-
-
     if(trocou)
         verificarCombinacao(tabuleiro, allegro_vars, jogo);
     else

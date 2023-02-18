@@ -7,7 +7,7 @@
 
 #define NUM_ASSETS 7
 #define NUM_LAYERS 18
-#define NUM_SOUNDS 2
+#define NUM_SOUNDS 3
 #define NUM_FONTS 1
 #define linhas 8
 #define colunas 8
@@ -75,6 +75,8 @@ t_allegro_vars *vars_init()
     must_init(allegro_vars->sounds[0], "floop");
     allegro_vars->sounds[1] = al_load_sample("./resources/song.wav");
     must_init(allegro_vars->sounds[1], "song");
+    allegro_vars->sounds[2] = al_load_sample("./resources/levelup.wav");
+    must_init(allegro_vars->sounds[2], "levelup");
 
 
     // carrega assets
@@ -189,6 +191,7 @@ t_jogo *alocarJogo(){
         (jogo)->instrucoes = false;
         (jogo)->egg = false;
         (jogo)->novoNivel = false;
+        (jogo)->menu = true;
     }
     return jogo;
 }
@@ -225,6 +228,7 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
                 if (jogo->pontuacao > 300 * jogo->nivel && jogo->nivel < 3)
                 {
                     jogo->nivel++;
+                    al_play_sample(allegro_vars->sounds[2], 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
                     tabuleiro = gerar_tab(jogo);
                     jogo->novoNivel = true;
                 }
@@ -238,10 +242,11 @@ void jogo_main_loop(t_allegro_vars *allegro_vars)
                 break;
                 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-                if(jogo->instrucoes || jogo->leadboard || jogo->novoNivel){
+                if(jogo->instrucoes || jogo->leadboard || jogo->novoNivel || jogo->menu){
                     jogo->leadboard = false;
                     jogo->instrucoes = false;
                     jogo->novoNivel = false;
+                    jogo->menu = false;
                 }else if(event.mouse.button & 1){
                     pos_y = event.mouse.x / 64;
                     pos_x = event.mouse.y / 64;

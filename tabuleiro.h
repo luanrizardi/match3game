@@ -15,6 +15,7 @@ typedef struct t_jogo {
     bool instrucoes;
     bool egg;
     bool novoNivel;
+    bool menu;
 } t_jogo;
 
 /*enum TipoPeca {

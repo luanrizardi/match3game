@@ -17,7 +17,7 @@ void desenharTabuleiro(t_peca **tabuleiro, t_allegro_vars *allegro_vars, t_jogo 
 
 void desenharAnimacao(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo, bool linha);
 
-void desenharAnimacao2(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo);
+void desenharAnimacao2(t_peca **tabuleiro, int x, int y, int pos_x, int pos_y, int tempo_animacao, t_allegro_vars *allegro_vars, t_jogo *jogo, int k);
 
 bool verificar_vizinho(t_peca **tabuleiro, int pos_x, int pos_y, t_peca *pecaSelecionada);
 
